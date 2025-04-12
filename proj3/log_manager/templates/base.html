@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}Log Report{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-4">
+        <h1 class="text-center">{% block header %}Log Report{% endblock %}</h1>
+
+        <div class="buttons text-center mb-4">
+            <a href="/report" class="btn btn-dark">Record Count</a>
+            <a href="/logs_by_day" class="btn btn-dark">Logs by Day</a>
+            <a href="/refresh" class="btn btn-dark">Refresh</a>
+
+            {% block filter %}{% endblock %}
+        </div>
+
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
