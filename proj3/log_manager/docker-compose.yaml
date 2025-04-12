@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6.0
+    container_name: mongo_logs
+    ports:
+      - "27017:27017" 
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    volumes:
+      - mongodb_data:/data/db
+  
+
+  scanner:
+    image: artamonovdima/python_scanner:vol2
+    container_name: python_scanner
+    ports:
+      - "5000:5000"
+    environment:
+      MY_DNS: 192.168.56.9
+      MONGO_URI: "mongodb://root:example@host.docker.internal:27017/?authSource=admin"
+      NUMBER_OF_VMS: 3
+      PRIVATE_KEY_PATH: /keys/id_ed25519
+    volumes:
+      - ./id_ed25519:/keys/id_ed25519:ro
+    depends_on:
+      - mongodb
+
+volumes:
+  mongodb_data:
