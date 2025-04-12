@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block header %}
+    Report: Number of Records per Machine
+{% endblock %}
+
+{% block filter %}
+    {% if available_dates %}
+    <form method="get" action="/logs_by_day" class="d-inline-block mr-2">
+        <select name="date" class="form-control d-inline-block w-auto">
+            <option value="">Select a Date</option>
+            {% for date in available_dates %}
+                <option value="{{ date }}" {% if selected_date == date %}selected{% endif %}>{{ date }}</option>
+            {% endfor %}
+        </select>
+        <select name="sort" class="form-control d-inline-block w-auto ml-2">
+            <option value="asc" {% if sort_order == 'asc' %}selected{% endif %}>Oldest First</option>
+            <option value="desc" {% if sort_order == 'desc' %}selected{% endif %}>Newest First</option>
+        </select>
+        <button type="submit" class="btn btn-primary ml-2">Filter</button>
+    </form>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+    {% if report %}
+    <table class="table table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Machine Name</th>
+                <th>IP Address</th>
+                <th>Record Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for vm, info in report.items() %}
+            <tr>
+                <td>{{ vm }}</td>
+                <td>{{ info.ip }}</td>
+                <td>{{ info.total_records }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination text-center">
+        {% if page > 1 %}
+            <a href="{{ url_for('generate_report', page=page-1) }}" class="btn btn-outline-primary">Previous</a>
+        {% endif %}
+        <span>Page {{ page }} of {{ total_pages }}</span>
+        {% if page < total_pages %}
+            <a href="{{ url_for('generate_report', page=page+1) }}" class="btn btn-outline-primary">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if logs_by_day %}
+    <div class="accordion" id="accordionReceivers">
+        {% for date, receivers in logs_by_day.items() %}
+            {% set receiver_index = loop.index0 %}
+            <h2 class="text-center mt-5">Date: {{ date }}</h2>
+            {% for receiver, senders in receivers.items() %}
+                {% set sender_index = loop.index0 %}
+                <div class="card">
+                    <div class="card-header" id="heading{{ receiver_index }}{{ sender_index }}">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse{{ receiver_index }}{{ sender_index }}" aria-expanded="true" aria-controls="collapse{{ receiver_index }}{{ sender_index }}">
+                                Receiver: {{ receiver }}
+                            </button>
+                        </h5>
+                    </div>
+                    <div id="collapse{{ receiver_index }}{{ sender_index }}" class="collapse" aria-labelledby="heading{{ receiver_index }}{{ sender_index }}" data-parent="#accordionReceivers">
+                        <div class="card-body">
+                            <table class="table table-sm table-bordered">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th>Sender</th>
+                                        <th>Log Timestamps</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for sender, timestamps in senders.items() %}
+                                    <tr>
+                                        <td>{{ sender }}</td>
+                                        <td>
+                                            <button class="btn btn-secondary btn-sm" type="button" data-toggle="collapse" data-target="#timestamps{{ receiver_index }}{{ sender_index }}{{ loop.index0 }}" aria-expanded="false">
+                                                Show Timestamps
+                                            </button>
+                                            <div class="collapse mt-2" id="timestamps{{ receiver_index }}{{ sender_index }}{{ loop.index0 }}">
+                                                {% for ts in timestamps %}
+                                                    <div>{{ ts }}</div>
+                                                {% endfor %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}
